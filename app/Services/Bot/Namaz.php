@@ -13,30 +13,6 @@ use App\Services\AbstractBotCommands;
  */
 class Namaz extends AbstractBotCommands {
 
-    private function delivery_commands($delivery) {
-        $commands = [
-            'delivery_info'                     => 'показать информацию о текущей рассылке',
-            /*'delivery_type'                     => 'изменить тип рассылки',*/
-        ];
-
-        if ($delivery->text OR $delivery->file) {
-            $commands['delivery_start'] = 'запустить рассылку';
-        }
-
-        if ($delivery->text) {
-            $commands['delivery_delete_text'] = 'очистить текст рассылки';
-        }
-
-        if ($delivery->file) {
-            $commands['delivery_remove_file']        = 'открепить подключенный к рассылке файл';
-            $commands['delivery_test_send_file'] = 'проверить отправку файла рассылки';
-        }
-
-        $commands['cancel'] = 'отменить создание рассылки';
-
-        return $commands;
-    }
-
     function commandLocation() {
         $this->user->state = 'location';
         $this->user->save();
@@ -91,9 +67,7 @@ class Namaz extends AbstractBotCommands {
     function commandNamaz() {
         
         if ($this->user->latitude and $this->user->longitude and $this->user->timezone) {
-            // Используем в качестве метода расчёта намаза "Islamic Society of North America (ISNA)"
-            // как наиболее близкого и адекватного к реальности (по крайней мере, для Уфы)
-            $prayTime = new \App\Helpers\PrayTime(2);
+            $prayTime = new \App\Helpers\PrayTime($this->user->method);
             $date  = strtotime(date('Y-m-d'));
             $times = $prayTime->getPrayerTimes($date, $this->user->latitude, $this->user->longitude, $this->user->timezone);
             
@@ -120,13 +94,77 @@ class Namaz extends AbstractBotCommands {
             $this->user->state = 'location';
             $this->user->save();
             return [
-                'text' => "Прошу прощения, но вы ещё не указали своё местоположение. Без знания ваших координат (хотя-бы приблизительных), мы не можем определить время намаза для вас.",
+                'text' => "Пожалуйста, укажите ваше местоположение. Для этого нажмите внизу на кнопку «Указать своё местоположение». Без знания ваших координат (хотя-бы приблизительных), мы не можем определить время намаза для вас.",
                 'buttons' => [[[
                     'text' => 'Указать своё местоположение',
                     'request_location' => true
                 ]]],
             ];
         }
+    }
+    
+    function commandSelectMethod() {
+        $this->user->state = 'select_method';
+        $this->user->save();
+        
+        $date = strtotime(date('Y-m-d'));
+        $data = \IntlDateFormatter::formatObject(new \DateTime,'d MMMM Y', 'ru_RU.UTF8');
+        
+        $text = "В данный момент мы имеем 8 различных методик. Выберите наиболее подходящие значения для своего региона.\n";
+
+        foreach([
+            0 => 'Фаджр',
+            //1 => 'Восход',
+            2 => 'Зухр',
+            3 => 'Аср',
+            5 => 'Магриб',
+            6 => 'Иша',
+        ] as $timeOfDayId => $timeOfDayName) {
+            $text .= "\n{$timeOfDayName}:\n";
+            foreach(range(0,7) as $methodId) {
+                $prayTime = new \App\Helpers\PrayTime($methodId);
+                $times = $prayTime->getPrayerTimes($date, $this->user->latitude, $this->user->longitude, $this->user->timezone);
+                $text .= ($methodId+1) . " - {$times[$timeOfDayId]}\n";
+            }
+        }
+        
+        $currentMethod = $this->user->method + 1;
+        $text .= "\nВведите номер наиболее близкого для вас метода расчёта, чтобы сделать его временем, которое будет отображаться для вас.";
+        $text .= "\n\nВ данный момент вы используете метод №{$currentMethod}.";
+        
+        return [
+            'text' => $text,
+            'commands' => [
+                'cancel' => 'Выйти из режима выбора метода расчёта времени намаза.',
+            ]
+        ];
+    }
+    
+    function commandSelectMethodMessages() {
+        if (property_exists($this->request->message, 'text')) {
+            
+            $methodId = ((int) $this->request->message->text) - 1;
+            
+            if ($methodId >= 0 and $methodId <= 7) {
+                $this->user->method = ((int) $this->request->message->text) - 1;
+                $this->user->state = null;
+                $this->user->save();
+                
+                return [
+                    'text' => "Вы указали метод расчёта №" . ($methodId+1) . '.',
+                    'commands' => [
+                        'namaz' => 'Узнать время намаза на сегодня',
+                    ]
+                ];
+            } else {
+                return [
+                    'text' => "Укажите номер метода расчёта или отмените данную команду.",
+                    'commands' => [
+                        'cancel' => 'Отменить команду',
+                    ]
+                ];
+            }
+        }        
     }
 
 }

@@ -22,6 +22,7 @@ class Bot {
         'Namaz' => [
             'location',
             'namaz',
+            'select_method',
         ],
     ];
     
