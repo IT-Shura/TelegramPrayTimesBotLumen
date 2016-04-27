@@ -16,7 +16,7 @@ class NamazNotificationsTable extends Migration
             $table->increments('id');
             $table->integer('users_id');
             $table->foreign('users_id')->references('id')->on('users');
-            $table->string('date');
+            $table->bigInteger('date')->index();
             $table->smallInteger('namaz_type');
             $table->smallInteger('minutes');
             $table->timestamps();
