@@ -68,14 +68,14 @@ class NoticeAboutPray extends Command
             
             $now       = (new DateTime('now', new DateTimeZone("Etc/GMT{$timezone}")));
             $prayTimes = $user->getPrayTimes($now);
-            //$this->info($now->format('G:i'));
+            $this->info($now->format('G:i') . " -- {$timezone} ({$user->timezone})");
             
             foreach([0,2,3,5,6] as $prayTimeId) {
                 foreach([15, 5] as $intervalInMins) {
                     $prayTimeDate = new DateTime($prayTimes[$prayTimeId], new DateTimeZone("Etc/GMT{$timezone}"));
                     
                     $interval = $now->getTimestamp() - $prayTimeDate->getTimestamp();
-                    //$this->info($prayTimeDate->format('G:i') . ' -- ' . $interval);
+                    $this->info($user->name() . ' -- ' . $prayTimeDate->format('G:i') . ' -- ' . $interval);
                     
                     // За $intervalInMins минут оповестим человека о подходящем намазе..
                     if ($interval >= (60 * ($intervalInMins+2) * -1) and $interval <= (60 * ($intervalInMins-3) * -1)) {
