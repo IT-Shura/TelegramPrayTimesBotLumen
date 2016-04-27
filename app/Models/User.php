@@ -32,5 +32,12 @@ class User extends Model {
             return $text;
         }
     }
+    
+    function getPrayTimes($date = null) {
+        $prayTime = new \App\Helpers\PrayTime($this->method);
+        $date     = $date ? $date->getTimestamp() : strtotime(date('Y-m-d'));
+        
+        return $prayTime->getPrayerTimes($date, $this->latitude, $this->longitude, $this->timezone);
+    }
 
 }

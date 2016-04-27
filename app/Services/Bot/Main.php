@@ -28,6 +28,7 @@ class Main extends AbstractBotCommands {
         } else {
             $response['commands']['namaz'] = 'Показать время начала намазов на сегодня.';
             $response['commands']['select_method'] = 'Выбрать метод расчёта времени намаза';
+            $response['commands']['notifications'] = 'Настройки оповещений о начале намаза';
         }
         
         return $response;
@@ -39,6 +40,7 @@ class Main extends AbstractBotCommands {
             'namaz'         => 'Показать время начала намазов на сегодня.',
             'location'      => 'Указать своё местоположение',
             'select_method' => 'Выбрать метод расчёта времени намаза',
+            'notifications' => 'Настройки оповещений о начале намаза',
         ];
         
         if ($this->checkForSuperAdmin()) {

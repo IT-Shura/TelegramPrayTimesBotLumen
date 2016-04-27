@@ -20,13 +20,24 @@ class Bot {
             'cancel',
         ],
         'Namaz' => [
-            'location',
             'namaz',
             'select_method',
+        ],
+        'Location' => [
+            'location',
+        ],
+        'Notifications' => [
+            'notifications',
+            'notifications_on',
+            'notifications_off',
         ],
     ];
     
     private $key;
+    
+    private $request;
+    
+    private $user;
     
     function __construct() {
         $this->key = env('TELEGRAM_KEY');
