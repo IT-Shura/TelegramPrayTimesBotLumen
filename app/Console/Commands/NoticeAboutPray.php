@@ -47,6 +47,9 @@ class NoticeAboutPray extends Command
     {
         $noticeUsers = \App\Models\User::query()
             ->where('notifications', true)
+            ->whereNotNull('timezone')
+            ->whereNotNull('latitude')
+            ->whereNotNull('longitude')
             ->get();
             
         $namazNames = [
