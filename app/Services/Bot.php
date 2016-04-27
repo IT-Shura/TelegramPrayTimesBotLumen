@@ -130,7 +130,7 @@ class Bot {
             $completed_answer['reply_markup'] = json_encode([
                 'keyboard'            => $answer['buttons'],
                 //'one_time_keyboard' => true,
-                'resize_keyboard'     => true,
+                //'resize_keyboard'     => true,
             ]);
         } elseif (!isset($answer['buttons'])) {
             $completed_answer['reply_markup'] = json_encode([ 'hide_keyboard' => true ]);
