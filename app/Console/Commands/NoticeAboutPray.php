@@ -82,7 +82,7 @@ class NoticeAboutPray extends Command
                         
                         $notification = \App\Models\NamazNotification::firstOrNew([
                             'users_id'   => $user->id,
-                            'date'       => $now->format('G:i'),
+                            'date'       => $prayTimeDate->format('G:i'),
                             'namaz_type' => $prayTimeId,
                             'minutes'    => $intervalInMins
                         ]);
