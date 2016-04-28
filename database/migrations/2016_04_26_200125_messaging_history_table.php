@@ -16,7 +16,7 @@ class MessagingHistoryTable extends Migration
             $table->increments('id');
             $table->integer('users_id');
             $table->foreign('users_id')->references('id')->on('users');
-            $table->text('user_message');
+            $table->text('user_message')->nullable();
             $table->text('answer');
             $table->timestamps();
         });
