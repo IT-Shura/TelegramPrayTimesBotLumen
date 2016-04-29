@@ -39,5 +39,12 @@ class User extends Model {
         
         return $prayTime->getPrayerTimes($date, $this->latitude, $this->longitude, $this->timezone);
     }
+    
+    function getTimezoneName() {
+        $timezone = $this->timezone * -1;
+        if ($timezone >= 0) { $timezone = '+' . ((string) $timezone); }
+        $timezone = (string) $timezone;
+        return "Etc/GMT{$timezone}";
+    }
 
 }

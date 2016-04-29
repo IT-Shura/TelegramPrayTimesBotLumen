@@ -113,17 +113,14 @@ class NoticeAboutPray extends Command
             
         foreach($noticeUsers as $user) {
             
-            $timezone = $user->timezone * -1;
-            if ($timezone >= 0) { $timezone = '+' . ((string) $timezone); }
-            $timezone = (string) $timezone;
-            
-            $now       = (new DateTime('now', new DateTimeZone("Etc/GMT{$timezone}")));
+            $timezone  = $user->getTimezoneName();
+            $now       = new DateTime('now', new DateTimeZone($timezone));
             $prayTimes = $user->getPrayTimes($now);
             $this->info($now->format('G:i') . " -- {$timezone} ({$user->timezone})");
             
             foreach([0,2,3,5,6] as $prayTimeId) {
                 foreach([15, 5] as $intervalInMins) {
-                    $prayTimeDate = new DateTime($prayTimes[$prayTimeId], new DateTimeZone("Etc/GMT{$timezone}"));
+                    $prayTimeDate = new DateTime($prayTimes[$prayTimeId], new DateTimeZone($timezone));
                     
                     $interval = $now->getTimestamp() - $prayTimeDate->getTimestamp();
                     $this->info($user->name() . ' -- ' . $prayTimeDate->format('G:i') . ' -- ' . $interval);

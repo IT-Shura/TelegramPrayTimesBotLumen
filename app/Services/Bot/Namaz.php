@@ -8,6 +8,10 @@ use App\Models\DeliveryType;
 use App\Models\User;
 use App\Services\AbstractBotCommands;
 
+use DateTime;
+use DateTimeZone;
+use IntlDateFormatter;
+
 /**
  * Получение времени намаза
  */
@@ -17,7 +21,7 @@ class Namaz extends AbstractBotCommands {
         
         if ($this->user->latitude and $this->user->longitude and $this->user->timezone) {
             $times = $this->user->getPrayTimes();
-            $data = \IntlDateFormatter::formatObject(new \DateTime,'d MMMM Y', 'ru_RU.UTF8');
+            $data = IntlDateFormatter::formatObject(new DateTime('now', new DateTimeZone($this->user->getTimezoneName())),'cccccc, d MMMM Y', 'ru_RU.UTF8');
             
             $text = "Время намаза на {$data}:\n"
               . "Фаджр: {$times[0]}\n"

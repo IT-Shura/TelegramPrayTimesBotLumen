@@ -7,6 +7,9 @@ use App\Models\Delivery as DeliveryModel;
 use App\Models\DeliveryType;
 use App\Models\User;
 use App\Services\AbstractBotCommands;
+use IntlDateFormatter;
+use DateTime;
+use DateTimeZone;
 
 /**
  * Определение локации пользователя
@@ -44,8 +47,27 @@ class Location extends AbstractBotCommands {
             $this->user->state = null;
             $this->user->save();
             
+            $times = $this->user->getPrayTimes();
+            $data = IntlDateFormatter::formatObject(new DateTime('now', new DateTimeZone($this->user->getTimezoneName())),'cccccc, d MMMM Y', 'ru_RU.UTF8');
+            $text = "Время намаза на {$data}:\n"
+              . "Фаджр: {$times[0]}\n"
+              . "Восход: {$times[1]}\n"
+              . "Зухр: {$times[2]}\n"
+              . "Аср: {$times[3]}\n"
+              . "Магриб: {$times[5]}\n"
+              . "Иша: {$times[6]}"
+            ;
+            
             return [
-                'text' => "Информация получена, благодарим. По умолчанию, наш бот будет оповещать вас о наступлении намаза. Вы всегда можете отключить данную функцию.\n\nВы также можете выбрать различные методы расчёта времени наступления намаза.",
+                'text' => "Информация получена, благодарю. По умолчанию, наш бот будет оповещать вас о наступлении намаза. "
+                        ."Вы всегда можете отключить данную функцию."
+                        ."\n\nВы также можете выбрать различные методы расчёта времени наступления намаза.\n\n"
+                        .$text
+                        ."\n\nДанное время является корректным? Если нет, то попробуйте сменить метод расчёта. "
+                        ."Также убедитесь, что вы указали точные координаты своёго местоположения. "
+                        ."Если время всё равно некорректное, напишите об этом @BelieverUfa. "
+                        ."Подумаем вместе о том, как решить эту проблему."
+                ,
                 'commands' => [
                     'namaz' => 'Узнать время намаза на сегодня.',
                     'select_method' => 'Выбрать метод расчёта времени намаза',
