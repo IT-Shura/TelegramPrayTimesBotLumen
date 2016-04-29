@@ -88,6 +88,8 @@ class PrayTime
     var $Egypt      = 5;    // Egyptian General Authority of Survey
     var $Custom     = 6;    // Custom Setting
     var $Tehran     = 7;    // Institute of Geophysics, University of Tehran
+    var $ITSHURA    = 8;    // Айти шура. Вариант от Ахмадуллина Романа
+    var $ITSHURA2   = 9;    // Айти шура. Вариант 2 от Ахмадуллина Романа
 
     // Juristic Methods
     var $Shafii     = 0;    // Shafii (standard)
@@ -162,7 +164,6 @@ class PrayTime
 
     function PrayTime($methodID = 0)
     {
-
         $this->methodParams[$this->Jafari]    = array(16, 0, 4, 0, 14);
         $this->methodParams[$this->Karachi]   = array(18, 1, 0, 0, 18);
         $this->methodParams[$this->ISNA]      = array(15, 1, 0, 0, 15);
@@ -171,6 +172,8 @@ class PrayTime
         $this->methodParams[$this->Egypt]     = array(19.5, 1, 0, 0, 17.5);
         $this->methodParams[$this->Tehran]    = array(17.7, 0, 4.5, 0, 14);
         $this->methodParams[$this->Custom]    = array(18, 1, 0, 0, 17);
+        $this->methodParams[$this->ITSHURA]   = array(13, 1, 0, 0, 13);
+        $this->methodParams[$this->ITSHURA2]  = array(7, 1, 0, 0, 7);
 
         $this->setCalcMethod($methodID);
     }

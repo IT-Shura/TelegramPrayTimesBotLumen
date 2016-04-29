@@ -71,7 +71,7 @@ class Namaz extends AbstractBotCommands {
             6 => 'Иша',
         ] as $timeOfDayId => $timeOfDayName) {
             $text .= "\n{$timeOfDayName}:\n";
-            foreach(range(0,7) as $methodId) {
+            foreach(range(0,9) as $methodId) {
                 $prayTime = new \App\Helpers\PrayTime($methodId);
                 $times = $prayTime->getPrayerTimes($date, $this->user->latitude, $this->user->longitude, $this->user->timezone);
                 $text .= ($methodId+1) . " - {$times[$timeOfDayId]}\n";
@@ -95,7 +95,7 @@ class Namaz extends AbstractBotCommands {
             
             $methodId = ((int) $this->request->message->text) - 1;
             
-            if ($methodId >= 0 and $methodId <= 7) {
+            if ($methodId >= 0 and $methodId <= 9) {
                 $this->user->method = ((int) $this->request->message->text) - 1;
                 $this->user->state = null;
                 $this->user->save();
