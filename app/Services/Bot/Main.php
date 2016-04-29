@@ -10,28 +10,19 @@ use App\Services\AbstractBotCommands;
 class Main extends AbstractBotCommands {
 
     function commandStart() {
-        $response = [
+        $this->user->state = 'location';
+        $this->user->save();
+        return [
             'text' => "Ас-саляму алейкум уа рахматуллахи уа баракятух, {$this->user->name()}!\n\nДанный бот позволяет определять времена намаза и оповещать вас о них. "
                     . "Мы используем для расчёта алгоритмы из открытого проекта praytimes.org. По умолчанию используется метод расчёта от Исламского сообщества Северной Америки, "
                     . "как наиболее корректный, но вы всегда можете выбрать в настройках один из восьми других алгоритмов, если они окажутся для вашего региона более подходящими."
                     . "\n\nДля начала работы с ботом, пожалуйста, укажите своё местоположение."
             ,
-        ];
-        
-        if (empty($this->user->latitude) or empty($this->user->longitude) or empty($this->user->timezone)) {
-            $this->user->state = 'location';
-            $this->user->save();
-            $response['buttons'] = [[[
+            'buttons' => [[[
                 'text' => 'Указать своё местоположение',
                 'request_location' => true
-            ]]];
-        } else {
-            $response['commands']['namaz'] = 'Показать время начала намазов на сегодня.';
-            $response['commands']['select_method'] = 'Выбрать метод расчёта времени намаза';
-            $response['commands']['notifications'] = 'Настройки оповещений о начале намаза';
-        }
-        
-        return $response;
+            ]]]
+        ];
     }
 
     function commandHelp() {
