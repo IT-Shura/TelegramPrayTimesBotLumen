@@ -31,6 +31,15 @@ class Bot {
             'notifications_on',
             'notifications_off',
         ],
+        'Delivery' => [
+            'new_delivery',
+            'delivery_request',
+            'delivery_info',
+            'delivery_start',
+            'delivery_delete_text',
+            'delivery_remove_file',
+            'delivery_test_send_file',
+        ],
     ];
     
     private $key;

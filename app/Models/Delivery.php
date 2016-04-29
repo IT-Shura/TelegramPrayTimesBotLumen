@@ -7,7 +7,7 @@ class Delivery extends Model {
 
 	protected $table = 'deliveries';
 
-    protected $fillable = ['text','file','type_id','status_id','users_id'];
+    protected $fillable = ['text','file','type_id','status_id','author_id'];
 
     function type() {
         return $this->belongsTo(DeliveryType::class,'type_id');
@@ -18,7 +18,7 @@ class Delivery extends Model {
     }
 
     function user() {
-        return $this->belongsTo(User::class,'users_id');
+        return $this->belongsTo(User::class,'author_id');
     }
 
 }

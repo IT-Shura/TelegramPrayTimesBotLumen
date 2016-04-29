@@ -27,8 +27,8 @@ class DelieveriesTables extends Migration
         
         Schema::create('deliveries', function (Blueprint $table) {
             $table->increments('id');
-            $table->text('text');
-            $table->string('file', 1000);
+            $table->text('text')->nullable();
+            $table->string('file', 1000)->nullable();
             $table->string('file_type', 255)->nullable();
             $table->integer('type_id');   $table->foreign('type_id')->references('id')->on('deliveries_types');
             $table->integer('status_id'); $table->foreign('status_id')->references('id')->on('deliveries_statuses');
