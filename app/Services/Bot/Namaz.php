@@ -60,7 +60,7 @@ class Namaz extends AbstractBotCommands {
         $date = strtotime(date('Y-m-d'));
         $data = \IntlDateFormatter::formatObject(new \DateTime,'d MMMM Y', 'ru_RU.UTF8');
         
-        $text = "В данный момент мы имеем 8 различных методик. Выберите наиболее подходящие значения для своего региона.\n";
+        $text = "Выберите наиболее подходящие значения для своего региона.\n";
 
         foreach([
             0 => 'Фаджр',
