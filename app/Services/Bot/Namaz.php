@@ -65,11 +65,9 @@ class Namaz extends AbstractBotCommands {
         foreach(range(0,9) as $methodId) {
             $prayTime = new \App\Helpers\PrayTime($methodId);
             $times = $prayTime->getPrayerTimes($date, $this->user->latitude, $this->user->longitude, $this->user->timezone);
-            //$text .= ($methodId+1) . " - {$times[$timeOfDayId]}\n";
-            
             $methodNum = str_pad($methodId+1, 3, ' ', STR_PAD_RIGHT);
             $text .= "№{$methodNum}: ";
-            $text .= "{$times[0]} - {$times[1]} - {$times[2]} - {$times[3]} - {$times[5]} - {$times[6]}\n";
+            $text .= "{$times[0]} - {$times[1]} - {$times[2]} - {$times[3]} - {$times[5]} - {$times[6]}\n\n";
         }
 
         $currentMethod = $this->user->method + 1;
@@ -81,7 +79,10 @@ class Namaz extends AbstractBotCommands {
             'commands' => [
                 'cancel' => 'Выйти из режима выбора метода расчёта времени намаза.',
             ],
-            'buttons' => [[ '1', '2', '3', '4', '5', '6', '7', '8', '9', '10' ]]
+            'buttons' => [
+                [ '1', '2', '3', '4', '5' ],
+                [ '6', '7', '8', '9', '10' ],
+            ]
         ];
     }
     
