@@ -60,24 +60,18 @@ class Namaz extends AbstractBotCommands {
         $date = strtotime(date('Y-m-d'));
         $data = \IntlDateFormatter::formatObject(new \DateTime,'d MMMM Y', 'ru_RU.UTF8');
         
-        $text = "Выберите наиболее подходящие значения для своего региона.\n";
-
-        foreach([
-            0 => 'Фаджр',
-            //1 => 'Восход',
-            2 => 'Зухр',
-            3 => 'Аср',
-            5 => 'Магриб',
-            6 => 'Иша',
-        ] as $timeOfDayId => $timeOfDayName) {
-            $text .= "\n{$timeOfDayName}:\n";
-            foreach(range(0,9) as $methodId) {
-                $prayTime = new \App\Helpers\PrayTime($methodId);
-                $times = $prayTime->getPrayerTimes($date, $this->user->latitude, $this->user->longitude, $this->user->timezone);
-                $text .= ($methodId+1) . " - {$times[$timeOfDayId]}\n";
-            }
-        }
+        $text = "Выберите наиболее подходящие значения для своего региона. Для каждого метода отображается время на фаджр, восход, зухр, аср, магриб и ишу.\n\n";
         
+        foreach(range(0,9) as $methodId) {
+            $prayTime = new \App\Helpers\PrayTime($methodId);
+            $times = $prayTime->getPrayerTimes($date, $this->user->latitude, $this->user->longitude, $this->user->timezone);
+            //$text .= ($methodId+1) . " - {$times[$timeOfDayId]}\n";
+            
+            $methodNum = str_pad($methodId+1, 3, ' ', STR_PAD_RIGHT);
+            $text .= "№{$methodNum}: ";
+            $text .= "{$times[0]} - {$times[1]} - {$times[2]} - {$times[3]} - {$times[5]} - {$times[6]}\n";
+        }
+
         $currentMethod = $this->user->method + 1;
         $text .= "\nВведите номер наиболее близкого для вас метода расчёта, чтобы сделать его временем, которое будет отображаться для вас.";
         $text .= "\n\nВ данный момент вы используете метод №{$currentMethod}.";
@@ -86,7 +80,8 @@ class Namaz extends AbstractBotCommands {
             'text' => $text,
             'commands' => [
                 'cancel' => 'Выйти из режима выбора метода расчёта времени намаза.',
-            ]
+            ],
+            'buttons' => [[ '1', '2', '3', '4', '5', '6', '7', '8', '9', '10' ]]
         ];
     }
     
