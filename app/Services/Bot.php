@@ -139,7 +139,7 @@ class Bot {
             $completed_answer['reply_markup'] = json_encode([
                 'keyboard'            => $answer['buttons'],
                 //'one_time_keyboard' => true,
-                //'resize_keyboard'     => true,
+                'resize_keyboard'     => true,
             ]);
         } elseif (!isset($answer['buttons'])) {
             $completed_answer['reply_markup'] = json_encode([ 'hide_keyboard' => true ]);
@@ -147,7 +147,7 @@ class Bot {
 
         return [
             'message' => $completed_answer,
-            'method'    => $method,
+            'method'  => $method,
         ];
     }
 
@@ -167,7 +167,7 @@ class Bot {
         \App\Models\MessageHistory::create([
             'users_id'     => $user_id,
             'user_message' => ($this->request AND property_exists($this->request->message, 'text')) ? $this->request->message->text : null,
-            'answer'       => $params['text'],
+            'answer'       => array_get($params,'text',''),
         ]);
 
         $curl->get("https://api.telegram.org/bot{$this->key}/{$answer['method']}", $params);
