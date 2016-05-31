@@ -30,6 +30,11 @@ class Telegram extends Controller {
     }
     
     //$this->dumpRequest();
+    
+    // любые не-сообщения от людей просто игнорируем
+    if (! property_exists($this->request,'message')) {
+      return 'thanks';
+    }
 
     $this->user = User::find($this->request->message->from->id);
 
