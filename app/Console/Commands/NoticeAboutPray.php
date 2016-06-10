@@ -114,13 +114,21 @@ class NoticeAboutPray extends Command
             $timezone  = $user->getTimezoneName();
             $now       = new DateTime('now', new DateTimeZone($timezone));
             $prayTimes = $user->getPrayTimes($now);
+            
             $this->info($now->format('G:i') . " -- {$timezone} ({$user->timezone})");
+            
+            //app('log')->info("Trying to send notify to {$user->id}. {$user->name}");
             
             foreach([0,2,3,5,6] as $prayTimeId) {
                 foreach([15, 0] as $intervalInMins) {
+                    
+                    // Если программе не удалось получить корректное время на данный промежуток - ничего не будем делать
+                    if ($prayTimes[$prayTimeId] === '-----') { continue; }
+                    
                     $prayTimeDate = new DateTime($prayTimes[$prayTimeId], new DateTimeZone($timezone));
                     
                     $interval = $now->getTimestamp() - $prayTimeDate->getTimestamp();
+                    
                     $this->info($user->name() . ' -- ' . $prayTimeDate->format('G:i') . ' -- ' . $interval);
                     
                     // За $intervalInMins минут оповестим человека о подходящем намазе..

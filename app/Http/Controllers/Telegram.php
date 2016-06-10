@@ -47,7 +47,7 @@ class Telegram extends Controller {
         'family' => property_exists($this->request->message->from, 'last_name')  ? $this->request->message->from->last_name  : null,
         'nick'   => property_exists($this->request->message->from, 'username')   ? $this->request->message->from->username   : null,
       ]);
-      
+    
       $this->user->save();
       $this->user = User::find($this->request->message->from->id);
       $this->user
