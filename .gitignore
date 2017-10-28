@@ -1,3 +1,5 @@
 /vendor
 .env
 worker.log
+worker.log.*
+storage/logs/lumen.log

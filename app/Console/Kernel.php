@@ -13,7 +13,8 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        Commands\NoticeAboutPray::class
+        Commands\NoticeAboutPray::class,
+        Commands\PruneDB::class,
     ];
 
     /**
@@ -25,5 +26,6 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('notice-about-pray')->everyMinute();
+        $schedule->command('prune-db')->monthly();
     }
 }

@@ -99,7 +99,7 @@ class Location extends AbstractBotCommands {
                     'cancel' => 'Выйти из режима выбора локации',
                 ]
             ];
-        } else {
+        } elseif (property_exists($this->request->message, 'text') and $this->request->message->text) {
             // Если было послано какое-то обычное сообщение, попытаемся найти координаты через API Яндекса
             $curl = new \Curl\Curl();
             $location = $curl->get('https://geocode-maps.yandex.ru/1.x/', [
