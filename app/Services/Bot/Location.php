@@ -40,7 +40,7 @@ class Location extends AbstractBotCommands {
     private function getPrayTimesText() {
         $times = $this->user->getPrayTimes();
         $data = IntlDateFormatter::formatObject(new DateTime('now', new DateTimeZone($this->user->getTimezoneName())),'cccccc, d MMMM Y', 'ru_RU.UTF8');
-        return "Время намаза на {$data}:\n"
+        return "Время намаза на {$data}:\n\n"
           . "Фаджр: {$times[0]}\n"
           . "Восход: {$times[1]}\n"
           . "Зухр: {$times[2]}\n"

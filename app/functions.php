@@ -12,3 +12,15 @@ function bot_debug($var) {
     ob_end_clean();
     app('log')->debug($debug_out);
 }
+
+function match($needles, $haystack) {
+    
+    $haystack = mb_strtolower($haystack);
+    
+    foreach($needles as $needle){
+        if (mb_strpos($haystack, $needle) !== false) {
+            return true;
+        }
+    }
+    return false;
+}

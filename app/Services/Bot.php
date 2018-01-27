@@ -14,31 +14,33 @@ class Bot {
      * Список классов и команд, за которые они отвечают в данном боте
      */
     private $routing = [
-        'Main' => [
-            'start',
-            'help',
-            'cancel',
-        ],
-        'Namaz' => [
-            'namaz',
-            'select_method',
-        ],
-        'Location' => [
-            'location',
-        ],
-        'Notifications' => [
-            'notifications',
-            'notifications_on',
-            'notifications_off',
-        ],
-        'Delivery' => [
-            'new_delivery',
-            'delivery_request',
-            'delivery_info',
-            'delivery_start',
-            'delivery_delete_text',
-            'delivery_remove_file',
-            'delivery_test_send_file',
+        'start'                    => 'Main',
+        'help'                     => 'Main',
+        'cancel'                   => 'Main',
+        'namaz'                    => 'Namaz',
+        'select_method'            => 'Namaz',
+        'location'                 => 'Location',
+        'notifications'            => 'Notifications',
+        'notifications_on'         => 'Notifications',
+        'notifications_off'        => 'Notifications',
+        'new_delivery'             => 'Delivery',
+        'delivery_request'         => 'Delivery',
+        'delivery_info'            => 'Delivery',
+        'delivery_start'           => 'Delivery',
+        'delivery_delete_text'     => 'Delivery',
+        'delivery_remove_file'     => 'Delivery',
+        'delivery_test_send_file'  => 'Delivery',
+    ];
+    
+    private $wordsRouting = [
+        [
+            'matches' => [
+                'время',
+                'намаз',
+                'молитв',
+                'солят',
+            ],
+            'route' => ['Namaz', 'namaz'],
         ],
     ];
     
@@ -55,28 +57,27 @@ class Bot {
     function processCommand($request, $user) {
         $this->request = $request;
         $this->user    = $user;
-
+        
         if (property_exists($this->request->message, 'text')) {
-            $command = str_replace('/','', explode(' ', mb_strtolower($this->request->message->text))[0]);
-            foreach($this->routing as $class => $commands) {
-                if (in_array($command,$commands)) {
-                    $processor_name = self::class . '\\' . $class;
-                    $processor = new $processor_name($request, $user, $this);
+            $command = str_replace('/', '', explode(' ', mb_strtolower($this->request->message->text))[0]);
+            
+            if (in_array($command, array_keys($this->routing))) 
+            {
+                $class = $this->routing[$command];
+                $processor_name = self::class . '\\' . $class;
+                $processor = new $processor_name($request, $user, $this);
 
-                    $function_name = 'command' . studly_case($command);
+                $function_name = 'command' . studly_case($command);
 
-                    if (method_exists($processor, $function_name)) {
-                        $this->sendAnswer($this->createReply($processor->$function_name()));
-                        return;
-                    }
+                if (method_exists($processor, $function_name)) {
+                    $this->sendAnswer($this->createReply($processor->$function_name()));
+                    return;
                 }
             }
-        }
-
-        // Возможно, есть возможность вытащить текущую команду на основе текущего состояния пользователя
-        foreach($this->routing as $class => $commands) {
-            if (in_array($this->user->state,$commands)) {
-
+            
+            // Возможно, есть возможность вытащить текущую команду на основе текущего состояния пользователя
+            if ($this->user->state and array_key_exists($this->user->state, $this->routing)) {
+                $class = $this->routing[$this->user->state];
                 $processor_name = self::class . '\\' . $class;
                 $processor = new $processor_name($request, $user, $this);
 
@@ -86,8 +87,34 @@ class Bot {
                     return;
                 }
             }
+            
+            // Поищем среди общих слов нужные роуты
+            foreach($this->wordsRouting as $queryData)
+            {
+                if (match($queryData['matches'], $this->request->message->text))
+                {
+                    $class = $queryData['route'][0];
+                    $processor_name = self::class . '\\' . $class;
+                    $processor = new $processor_name($request, $user, $this);
+    
+                    $function_name = 'command' . studly_case($queryData['route'][1]);
+                    if (method_exists($processor, $function_name)) {
+                        $this->sendAnswer($this->createReply($processor->$function_name()));
+                        return;
+                    }
+                }
+            }
+    
+            // Возможно, у нас есть обработчик команд по умолчанию
+            $processor_name = self::class . '\\Main';
+            $processor = new $processor_name($request, $user, $this);
+            $function_name = 'commandDefaultMessages';
+            if (method_exists($processor, $function_name)) {
+                $this->sendAnswer($this->createReply($processor->$function_name()));
+                return;
+            }
         }
-
+        
         $this->sendAnswer($this->createReply('Прошу прощения, но я не понял, что вам от меня нужно. Пожалуйста, постарайтесь уточнить ваш запрос.'));
     }
 

@@ -60,5 +60,36 @@ class Main extends AbstractBotCommands {
             return "У вас нет активных операций, поэтому и отменять вам нечего.";
         }
     }
+    
+    private $answers = [
+        [
+            'matches' => ['амин', 'амиин'],
+            'answers' => [
+                'Амин, амин!',
+                'Амиин!',
+                'Да, амин, мой друг.',
+            ],
+        ],
+    ];
+    
+    private function randomAnswer($data) {
+        return $data[array_rand($data)];
+    }
+    
+    function commandDefaultMessages() {
+        
+        if (property_exists($this->request->message, 'text') and $this->request->message->text)
+        {
+            foreach($this->answers as $answerData)
+            {
+                if (match($answerData['matches'], $this->request->message->text))
+                {
+                    return $this->randomAnswer($answerData['answers']);
+                }
+            }
+        }
+        
+        return 'Прошу прощения, но я не понял, что вам от меня нужно. Пожалуйста, постарайтесь уточнить ваш запрос.';
+    }
 
 }
