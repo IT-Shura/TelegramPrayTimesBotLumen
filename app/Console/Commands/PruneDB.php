@@ -26,7 +26,7 @@ class PruneDB extends Command
      * @var string
      */
     protected $description = 'Очистка истории сообщений из БД';
-    
+
     /**
      * Create a new command instance.
      *
@@ -46,12 +46,12 @@ class PruneDB extends Command
     public function handle()
     {
         MessageHistory::query()
-            ->where('created_at', '<', DB::raw("now() - interval '80 days'"))
+            ->where('created_at', '<', DB::raw("now() - interval '20 days'"))
             ->delete()
         ;
-        
+
         NamazNotification::query()
-            ->where('created_at', '<', DB::raw("now() - interval '80 days'"))
+            ->where('created_at', '<', DB::raw("now() - interval '20 days'"))
             ->delete()
         ;
     }
