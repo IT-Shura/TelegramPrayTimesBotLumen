@@ -128,17 +128,16 @@ class NoticeAboutPray extends Command
             //app('log')->info("Trying to send notify to {$user->id}. {$user->name}");
             
             foreach([0,2,3,5,6] as $prayTimeId) {
+                // Если программе не удалось получить корректное время на данный промежуток - ничего не будем делать
+                if ($prayTimes[$prayTimeId] === '-----') { continue; }
+                    
+                $prayTimeDate = new DateTime($prayTimes[$prayTimeId], new DateTimeZone($timezone));
+                    
+                $interval = $now->getTimestamp() - $prayTimeDate->getTimestamp();
+                
+                $this->info($user->name() . ' -- ' . $prayTimeDate->format('G:i') . ' -- ' . $interval);
+                
                 foreach([15, 0] as $intervalInMins) {
-                    
-                    // Если программе не удалось получить корректное время на данный промежуток - ничего не будем делать
-                    if ($prayTimes[$prayTimeId] === '-----') { continue; }
-                    
-                    $prayTimeDate = new DateTime($prayTimes[$prayTimeId], new DateTimeZone($timezone));
-                    
-                    $interval = $now->getTimestamp() - $prayTimeDate->getTimestamp();
-                    
-                    $this->info($user->name() . ' -- ' . $prayTimeDate->format('G:i') . ' -- ' . $interval);
-                    
                     // За $intervalInMins минут оповестим человека о подходящем намазе..
                     if ($interval >= (60 * ($intervalInMins+1) * -1) and $interval <= (60 * ($intervalInMins-1) * -1)) {
                         
