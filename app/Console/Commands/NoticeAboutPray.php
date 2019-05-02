@@ -23,9 +23,9 @@ class NoticeAboutPray extends Command
      * @var string
      */
     protected $description = 'Оповестить людей о наступлении намаза';
-    
+
     protected $bot;
-    
+
     /**
      * Create a new command instance.
      *
