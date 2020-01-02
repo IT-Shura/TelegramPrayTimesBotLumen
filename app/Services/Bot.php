@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use Curl\Curl;
+use Illuminate\Support\Str;
+use Illuminate\Support\Arr;
 
 /**
  * Класс работы бота для программы "Телеграмм"
@@ -67,7 +69,7 @@ class Bot {
                 $processor_name = self::class . '\\' . $class;
                 $processor = new $processor_name($request, $user, $this);
 
-                $function_name = 'command' . studly_case($command);
+                $function_name = 'command' . Str::studly($command);
 
                 if (method_exists($processor, $function_name)) {
                     $this->sendAnswer($this->createReply($processor->$function_name()));
@@ -194,7 +196,7 @@ class Bot {
         \App\Models\MessageHistory::create([
             'users_id'     => $user_id,
             'user_message' => ($this->request AND property_exists($this->request->message, 'text')) ? $this->request->message->text : null,
-            'answer'       => array_get($params,'text',''),
+            'answer'       => Arr::get($params,'text',''),
         ]);
 
         $curl->get("https://api.telegram.org/bot{$this->key}/{$answer['method']}", $params);
