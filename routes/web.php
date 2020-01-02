@@ -11,8 +11,8 @@
 |
 */
 
-$app->get('/', function () use ($app) {
-    return $app->version();
+$router->get('/', function () {
+    return 'hello!';
 });
 
-$app->post('bot-hook/{hook_id}', 'Telegram@Webhook');
+$router->post('/bot-hook/{hook_id}', 'Telegram@Webhook');
