@@ -22,13 +22,11 @@ class Location extends AbstractBotCommands {
 
         return [
             'text' => 'Пожалуйста, укажите локацию, на которой вы находитесь в данный момент. '
-                     ."Можете нажать на кнопку внизу \"Указать своё местоположение\", чтобы автоматически отправить свои координаты.\n\n"
-                     .'Также вы можете написать название своего населённого пункта словами, например: "Уфа". '
-                     .'Бот постарается найти координаты данной местности. Но, следует иметь ввиду, что бот может '
-                     .'найти не тот населённый пункт, тогда уточните запрос, например так: "Россия, Башкортостан, Уфа"'
+                     ."Можете нажать на кнопку внизу \"Указать своё местоположение\", чтобы отправить свои координаты.\n\n"
+                     .'Имейте ввиду, что свои координаты вы можете отправить только с мобильного телефона. '
              ,
             'buttons' => [[[
-                'text' => 'Указать своё местоположение',
+                'text' => 'Отправить своё местоположение',
                 'request_location' => true
             ]]],
             'commands' => [
@@ -36,7 +34,7 @@ class Location extends AbstractBotCommands {
             ]
         ];
     }
-    
+
     private function getPrayTimesText() {
         $times = $this->user->getPrayTimes();
         $data = IntlDateFormatter::formatObject(new DateTime('now', new DateTimeZone($this->user->getTimezoneName())),'cccccc, d MMMM Y', 'ru_RU.UTF8');
@@ -49,7 +47,7 @@ class Location extends AbstractBotCommands {
           . "Иша: {$times[6]}"
         ;
     }
-    
+
     private function getTimezoneInfo($latitude, $longitude)  {
         $curl = new \Curl\Curl();
         return $curl->get('http://api.geonames.org/timezoneJSON', [
@@ -58,29 +56,27 @@ class Location extends AbstractBotCommands {
             'username' => 'believerufa',
         ]);
     }
-    
+
     function commandLocationMessages() {
-        
-        $locationSavedText = 
-            "Информация получена, благодарю. По умолчанию, наш бот будет оповещать вас о наступлении намаза. "
-            ."Вы всегда можете отключить данную функцию."
-            ."\n\nВы также можете выбрать различные методы расчёта времени наступления намаза.\n\n"
-            .$this->getPrayTimesText()
-            ."\n\nДанное время является корректным? Не забывайте, в любом случае, это - лишь приблизительная информация. "
-            ."Если же время сильно расходится, попробуйте сменить метод расчёта."
-        ;
-        
         if (property_exists($this->request->message, 'location')) {
-            
             $latitude  = $this->request->message->location->latitude;
             $longitude = $this->request->message->location->longitude;
-            
+
             $this->user->latitude  = $latitude;
             $this->user->longitude = $longitude;
             $this->user->timezone  = $this->getTimezoneInfo($latitude, $longitude)->gmtOffset;
             $this->user->state     = null;
             $this->user->save();
-            
+
+            $locationSavedText =
+                "Информация получена, благодарю. По умолчанию, наш бот будет оповещать вас о наступлении намаза. "
+                ."Вы всегда можете отключить данную функцию."
+                ."\n\nВы также можете выбрать различные методы расчёта времени наступления намаза.\n\n"
+                .$this->getPrayTimesText()
+                ."\n\nДанное время является корректным? Не забывайте, в любом случае, это - лишь приблизительная информация. "
+                ."Если же время сильно расходится, попробуйте сменить метод расчёта."
+            ;
+
             return [
                 'text' => $locationSavedText,
                 'commands' => [
@@ -88,66 +84,15 @@ class Location extends AbstractBotCommands {
                     'select_method' => 'Выбрать метод расчёта времени намаза',
                 ]
             ];
-            
-        } elseif (property_exists($this->request->message, 'text') and $this->request->message->text === 'Указать своё местоположение') {
+        } else {
             return [
-                'text' => "Кажется, у вас установлена немного устаревшая версия Telegram. Пожалуйста, зайдите в Телеграм через браузер (web.telegram.org) или обновите программу на самую последнюю версию, чтобы получить возможность передать боту свои координаты.",
+                'text' => 'Пожалуйста, отправьте своё текущее расположение, иначе бот не сможет раcсчитывать для вас времена наступления намазов.',
                 'buttons' => [[[
-                    'text' => 'Указать своё местоположение',
+                    'text' => 'Отправить своё местоположение',
                     'request_location' => true
                 ]]],
-                'commands' => [
-                    'cancel' => 'Выйти из режима выбора локации',
-                ]
             ];
-        } elseif (property_exists($this->request->message, 'text') and $this->request->message->text) {
-            // Если было послано какое-то обычное сообщение, попытаемся найти координаты через API Яндекса
-            $curl = new \Curl\Curl();
-            $location = $curl->get('https://geocode-maps.yandex.ru/1.x/', [
-                'geocode' => $this->request->message->text,
-            ]);
-            
-            if (property_exists($location->GeoObjectCollection, 'featureMember')) {
-                
-                $coords = explode(' ', (string) $location->GeoObjectCollection->featureMember[0]->GeoObject->Point->pos);
-                
-                $this->user->latitude  = $coords[1];
-                $this->user->longitude = $coords[0];
-                $this->user->timezone  = $this->getTimezoneInfo($coords[1],$coords[0])->gmtOffset;
-                $this->user->state     = null;
-                $this->user->save();
-                
-                $this->sender->sendAnswer([
-                    'method'  => 'sendLocation',
-                    'message' => [
-                        'latitude'  => $coords[1],
-                        'longitude' => $coords[0],
-                    ],
-                ]);                
-                
-                return [
-                    'text' => $locationSavedText,
-                    'commands' => [
-                        'namaz'         => 'Узнать время намаза на сегодня.',
-                        'select_method' => 'Выбрать метод расчёта времени намаза',
-                        'location'      => 'Указать другие координаты',
-                    ]
-                ];
-            } else {
-                return [
-                    'text' => "Прошу прощения, но я не нашёл ничего подходящего по вашему запросу. "
-                            ."Попробуйте передать своё местоположение ещё раз "
-                    ,
-                    'buttons' => [[[
-                        'text' => 'Указать своё местоположение',
-                        'request_location' => true
-                    ]]],
-                    'commands' => [
-                        'cancel' => 'Выйти из режима выбора локации',
-                    ],
-                ];
-            }
         }
     }
-    
+
 }

@@ -15,22 +15,22 @@ class Telegram extends Controller {
    * Функция используется для отладки, позволяет скинуть текущий объект запроса в лог-файл
    */
   function dumpRequest() {
-      bot_debug($this->request);
+    bot_debug($this->request);
   }
 
   function Webhook($key) {
-    
     if ($key !== env('TELEGRAM_KEY')) {
       return '?';
     }
-    
+
     $data = file_get_contents('php://input');
+
     if ($data) {
       $this->request = json_decode($data);
     }
-    
-    //$this->dumpRequest();
-    
+
+    // $this->dumpRequest();
+
     // любые не-сообщения от людей просто игнорируем
     if (! property_exists($this->request,'message')) {
       return 'thanks';
@@ -51,7 +51,7 @@ class Telegram extends Controller {
         'family' => $userFamily,
         'nick'   => $userNick,
       ]);
-    
+
       $this->user->save();
       $this->user = User::find($this->request->message->from->id);
       $this->user

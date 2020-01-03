@@ -33,7 +33,7 @@ class Bot {
         'delivery_remove_file'     => 'Delivery',
         'delivery_test_send_file'  => 'Delivery',
     ];
-    
+
     private $wordsRouting = [
         [
             'matches' => [
@@ -45,13 +45,13 @@ class Bot {
             'route' => ['Namaz', 'namaz'],
         ],
     ];
-    
+
     private $key;
-    
+
     private $request;
-    
+
     private $user;
-    
+
     function __construct() {
         $this->key = env('TELEGRAM_KEY');
     }
@@ -59,37 +59,42 @@ class Bot {
     function processCommand($request, $user) {
         $this->request = $request;
         $this->user    = $user;
-        
-        if (property_exists($this->request->message, 'text')) {
-            $command = str_replace('/', '', explode(' ', mb_strtolower($this->request->message->text))[0]);
-            
-            if (in_array($command, array_keys($this->routing))) 
-            {
-                $class = $this->routing[$command];
-                $processor_name = self::class . '\\' . $class;
-                $processor = new $processor_name($request, $user, $this);
 
-                $function_name = 'command' . Str::studly($command);
+        $hasMessage = property_exists($this->request->message, 'text');
+        $hasLocation = property_exists($this->request->message, 'location');
 
-                if (method_exists($processor, $function_name)) {
-                    $this->sendAnswer($this->createReply($processor->$function_name()));
-                    return;
+        if ($hasMessage or $hasLocation) {
+            if ($hasMessage) {
+                $command = str_replace('/', '', explode(' ', mb_strtolower($this->request->message->text))[0]);
+
+                if (in_array($command, array_keys($this->routing)))
+                {
+                    $class = $this->routing[$command];
+                    $processor_name = self::class . '\\' . $class;
+                    $processor = new $processor_name($request, $user, $this);
+
+                    $function_name = 'command' . Str::studly($command);
+
+                    if (method_exists($processor, $function_name)) {
+                        $this->sendAnswer($this->createReply($processor->$function_name()));
+                        return;
+                    }
                 }
             }
-            
+
             // Возможно, есть возможность вытащить текущую команду на основе текущего состояния пользователя
             if ($this->user->state and array_key_exists($this->user->state, $this->routing)) {
                 $class = $this->routing[$this->user->state];
                 $processor_name = self::class . '\\' . $class;
                 $processor = new $processor_name($request, $user, $this);
 
-                $function_name = 'command' . studly_case($this->user->state) . 'Messages';
+                $function_name = 'command' . Str::studly($this->user->state) . 'Messages';
                 if (method_exists($processor, $function_name)) {
                     $this->sendAnswer($this->createReply($processor->$function_name()));
                     return;
                 }
             }
-            
+
             // Поищем среди общих слов нужные роуты
             foreach($this->wordsRouting as $queryData)
             {
@@ -98,15 +103,15 @@ class Bot {
                     $class = $queryData['route'][0];
                     $processor_name = self::class . '\\' . $class;
                     $processor = new $processor_name($request, $user, $this);
-    
-                    $function_name = 'command' . studly_case($queryData['route'][1]);
+
+                    $function_name = 'command' . Str::studly($queryData['route'][1]);
                     if (method_exists($processor, $function_name)) {
                         $this->sendAnswer($this->createReply($processor->$function_name()));
                         return;
                     }
                 }
             }
-    
+
             // Возможно, у нас есть обработчик команд по умолчанию
             $processor_name = self::class . '\\Main';
             $processor = new $processor_name($request, $user, $this);
@@ -116,7 +121,7 @@ class Bot {
                 return;
             }
         }
-        
+
         $this->sendAnswer($this->createReply('Прошу прощения, но я не понял, что вам от меня нужно. Пожалуйста, постарайтесь уточнить ваш запрос.'));
     }
 

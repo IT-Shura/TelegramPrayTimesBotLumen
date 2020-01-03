@@ -14,9 +14,8 @@ function bot_debug($var) {
 }
 
 function match($needles, $haystack) {
-    
     $haystack = mb_strtolower($haystack);
-    
+
     foreach($needles as $needle){
         if (mb_strpos($haystack, $needle) !== false) {
             return true;
