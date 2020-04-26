@@ -29,7 +29,7 @@ class Telegram extends Controller {
       $this->request = json_decode($data);
     }
 
-    // $this->dumpRequest();
+    $this->dumpRequest();
 
     // любые не-сообщения от людей просто игнорируем
     if (! property_exists($this->request,'message')) {
@@ -58,7 +58,7 @@ class Telegram extends Controller {
         ->deliveries_types()
         ->sync(DeliveryType::where('enabled_by_default',true)
             ->get()
-            ->lists('id')
+            ->pluck('id')
             ->toArray()
         );
     }
