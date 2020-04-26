@@ -98,7 +98,7 @@ class Bot {
             // Поищем среди общих слов нужные роуты
             foreach($this->wordsRouting as $queryData)
             {
-                if (match($queryData['matches'], $this->request->message->text))
+                if ($this->request->message and match($queryData['matches'], $this->request->message->text))
                 {
                     $class = $queryData['route'][0];
                     $processor_name = self::class . '\\' . $class;
