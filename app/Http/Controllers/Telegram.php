@@ -29,7 +29,7 @@ class Telegram extends Controller {
       $this->request = json_decode($data);
     }
 
-    $this->dumpRequest();
+    // $this->dumpRequest();
 
     // любые не-сообщения от людей просто игнорируем
     if (! property_exists($this->request,'message')) {
